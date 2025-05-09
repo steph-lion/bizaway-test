@@ -2,8 +2,6 @@ import { z } from 'zod';
 
 /**
  * Schema for validating trip search query parameters
- * Requires origin and destination as IATA codes (3 uppercase letters)
- * Optionally accepts sort_by parameter which must be either 'fastest' or 'cheapest'.
  *
  * NOTE: I could have added a check for the array given in the homework, but since the 3rd party API returns 200 for non-existent airports, I decided to leave it out.
  */
