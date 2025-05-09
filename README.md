@@ -4,9 +4,8 @@ A Node.js API that allows searching for trips between origins and destinations w
 
 ## Features
 
-- Search trips by origin and destination
-- Sort results by fastest or cheapest option
-- Save and manage favorite trips (optional)
+- Search trips by origin and destination (http://localhost:3000/api/search?origin=XXX&destination=XXX&sort_by=fastest|cheapest)
+- CRUD operations for trips. Since the 3rd party API does not support a GET request for a trip, the POST request is done by creating a trip instead of saving one from the 3rd party API. (http://localhost:3000/api/trips)
 - Docker-ready setup with PostgreSQL database
 
 ## Requirements
