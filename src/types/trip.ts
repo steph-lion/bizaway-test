@@ -1,7 +1,7 @@
 /**
  * Types for the Trip object as defined by the 3rd party API
  */
-export interface Trip {
+export interface ExternalTrip {
   origin: string;
   destination: string;
   cost: number;

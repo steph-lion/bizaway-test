@@ -1,17 +1,16 @@
 import { Router } from 'express';
-import { createTrip } from '../controllers/createTrip.controller';
-import { deleteTrip } from '../controllers/deleteTrip.controller';
-import { getAllTrips } from '../controllers/getAllTrips.controller';
-import { CreateTripSchema } from '../dto/createTrip.dto';
+import { deleteTrip, getAllTrips, saveTrip } from '../controllers';
+import { SaveTripSchema } from '../dto';
 import { validateBody } from '../middlewares';
+import { authMiddleware } from '../middlewares/auth.middleware';
 
 const router: Router = Router();
 
-/* Get all trips stored into the database */
-router.get('/', getAllTrips);
-/* Create a new trip */
-router.post('/', validateBody(CreateTripSchema), createTrip);
-/* Delete a trip */
-router.delete('/:id', deleteTrip);
+/* Get all trips stored into the database by a user */
+router.get('/', authMiddleware, getAllTrips);
+/* Create a new trip  for a user*/
+router.post('/', authMiddleware, validateBody(SaveTripSchema), saveTrip);
+/* Delete a trip for a user*/
+router.delete('/:id', authMiddleware, deleteTrip);
 
 export const tripsRouter = router;

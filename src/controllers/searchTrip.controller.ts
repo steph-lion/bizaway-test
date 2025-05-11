@@ -2,11 +2,10 @@ import { HttpStatusCode } from 'axios';
 import { NextFunction, Request, Response } from 'express';
 import { SearchTripParams } from '../dto/searchTrip.dto';
 import externalTripsInstance from '../services/axios.service';
-import { Trip } from '../types/trip';
+import { ExternalTrip } from '../types/trip';
 
 /**
- * Controller to handle trip search requests
- * Validates and processes search parameters
+ * Controller to handle trip search requests by all the users
  */
 export const searchTrip = async (
   req: Request,
@@ -25,7 +24,7 @@ export const searchTrip = async (
         sort_by,
       },
     });
-    const trips: Trip[] = response.data;
+    const trips: ExternalTrip[] = response.data;
     if (sort_by === 'fastest') {
       trips.sort((a, b) => a.duration - b.duration);
     } else {

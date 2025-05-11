@@ -6,11 +6,12 @@ import { ServerError } from '../types/serverError';
  * Extended Request interface to include the authenticated user
  */
 export interface AuthenticatedRequest extends Request {
-  user?: {
-    id: number;
-    name: string;
-    email: string;
-  };
+  user?: JWTUserPayload;
+}
+export interface JWTUserPayload {
+  id: number;
+  name: string;
+  email: string;
 }
 
 /**

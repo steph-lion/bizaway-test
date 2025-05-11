@@ -34,6 +34,7 @@ model Trip {
   updated_at   DateTime @updatedAt
   user         User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
 
+  @@unique([original_id, user_id]) // A user can only save one trip with a specific original_id
   @@index([user_id])
   @@map("trips")
 }
