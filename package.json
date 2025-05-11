@@ -10,7 +10,7 @@
     "format": "prettier --write .",
     "migrate:dev": "npx prisma migrate dev",
     "migrate:deploy": "npx prisma migrate deploy",
-    "prisma:generate": "npx prisma generate"
+    "prisma:seed": "ts-node prisma/seed.ts"
   },
   "keywords": [],
   "author": "",

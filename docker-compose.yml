@@ -18,7 +18,7 @@ services:
 
   app:
     build: .
-    command: sh -c "npx prisma db push --skip-generate && npm run dev" # We skip the generate step because we are already doing it in the Dockerfile
+    command: sh -c "npx prisma db push --skip-generate && npm run prisma:seed npm run dev" # We skip the generate step because we are already doing it in the Dockerfile
     volumes:
       - .:/app
       - /app/node_modules
