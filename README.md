@@ -176,16 +176,6 @@ RATE_LIMIT_MAX=180           # Maximum requests per window (default: 180)
 RATE_LIMIT_STANDARD_HEADERS=true  # Whether to include standard rate limit headers
 ```
 
-#### Testing Rate Limiter
-
-You can test if the rate limiter is working correctly by running:
-
-```bash
-npm run test:ratelimit
-```
-
-This script will make a series of rapid requests to the API and report if rate limiting is functioning properly.
-
 #### Benefits and Considerations
 
 This protection helps prevent:
@@ -195,13 +185,7 @@ This protection helps prevent:
 - API abuse by automated scripts
 - Resource exhaustion
 
-To avoid hitting rate limits during development, consider:
-
-- Implementing proper caching strategies in your client
-- Batching requests when possible
-- Implementing exponential back-off on retry attempts
-
-### Authentication
+## Authentication
 
 All endpoints under `/api/trips` require authentication via Bearer token.
 
@@ -221,7 +205,7 @@ GET http://localhost:3000/
 GET http://localhost:3000/api/search?origin=NYC&destination=LAX
 ```
 
-3. To access protected endpoints, use one of the tokens printed during seeding:
+3. To access protected endpoints, use one of the tokens generated during seeding:
 
 ```
 GET http://localhost:3000/api/trips
