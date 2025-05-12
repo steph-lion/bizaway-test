@@ -8,6 +8,7 @@ A RESTful API for searching and saving trips using Express, TypeScript, and Pris
 - Search trips from an external API with sorting options
 - User authentication with JWT tokens (simplified for demonstration)
 - CRUD operations for user trips (get, save, delete)
+- Rate limiting (180 requests per 60 seconds window)
 - PostgreSQL database with Prisma ORM
 - Docker setup for easy deployment
 
@@ -19,6 +20,7 @@ A RESTful API for searching and saving trips using Express, TypeScript, and Pris
 - **PostgreSQL**: Relational database for data persistence
 - **Docker**: Containerization for consistent development and production environments
 - **Zod**: Schema validation for request parameters
+- **express-rate-limit**: API rate limiting middleware
 - **Pino**: Fast and low-overhead logger
 
 ## Architecture
@@ -149,6 +151,59 @@ npm run prisma:seed
 ```bash
 npm run dev
 ```
+
+## Security Features
+
+### Rate Limiting
+
+The API implements rate limiting to protect against abuse and ensure fair usage of resources. Each IP address is limited to:
+
+- **180 requests** per **60 second** window (default)
+- After exceeding this limit, requests will receive a `429 Too Many Requests` response
+- Headers containing rate limit information are included in all responses:
+  - `RateLimit-Limit`: Maximum number of requests allowed in the window
+  - `RateLimit-Remaining`: Number of requests remaining in the current window
+  - `RateLimit-Reset`: Time in seconds until the current window resets
+
+#### Configuration
+
+Rate limiting can be configured through environment variables:
+
+```
+# Rate Limiter configuration
+RATE_LIMIT_WINDOW_MS=60000   # Time window in milliseconds (default: 60000)
+RATE_LIMIT_MAX=180           # Maximum requests per window (default: 180)
+RATE_LIMIT_STANDARD_HEADERS=true  # Whether to include standard rate limit headers
+```
+
+#### Testing Rate Limiter
+
+You can test if the rate limiter is working correctly by running:
+
+```bash
+npm run test:ratelimit
+```
+
+This script will make a series of rapid requests to the API and report if rate limiting is functioning properly.
+
+#### Benefits and Considerations
+
+This protection helps prevent:
+
+- Brute force attacks on authentication endpoints
+- Denial of service (DoS) attacks
+- API abuse by automated scripts
+- Resource exhaustion
+
+To avoid hitting rate limits during development, consider:
+
+- Implementing proper caching strategies in your client
+- Batching requests when possible
+- Implementing exponential back-off on retry attempts
+
+### Authentication
+
+All endpoints under `/api/trips` require authentication via Bearer token.
 
 ## Testing the API
 

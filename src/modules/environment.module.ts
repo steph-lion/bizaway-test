@@ -18,13 +18,17 @@ const envSchema = z.object({
   // Express
   SERVER_PORT: z.string().default('5000'),
 
+  // Rate Limiter
+  RATE_LIMIT_WINDOW_MS: z.string().default('60000').transform(Number), // 60 seconds
+  RATE_LIMIT_MAX: z.string().default('180').transform(Number), // 180 requests per window
+
   // External API
   TRIPS_API_BASE_URL: z.string().url(),
   TRIPS_API_KEY: z.string(),
 
   // Prisma
   DB_URL: z.string(),
-  DB_PORT: z.string().default('5432'),
+  DB_PORT: z.string().default('5432').transform(Number),
   DB_USER: z.string(),
   DB_PASSWORD: z.string(),
   DB_NAME: z.string(),

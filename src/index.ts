@@ -1,6 +1,6 @@
 import dotenv from 'dotenv';
 import express, { Request, Response } from 'express';
-import { expressIncomingRequest } from './middlewares';
+import { expressIncomingRequest, rateLimiter } from './middlewares';
 import { env, logger } from './modules';
 import { searchRouter, tripsRouter } from './routes';
 
@@ -21,6 +21,7 @@ const port = env.SERVER_PORT;
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(expressIncomingRequest);
+app.use(rateLimiter);
 
 /**
  * Health check endpoint
