@@ -1,26 +1,110 @@
-# Trip Planner API
+# BizAway Trip Search API
 
-A Node.js API that allows searching for trips between origins and destinations with sorting options.
+A RESTful API for searching and saving trips using Express, TypeScript, and Prisma.
 
 ## Features
 
-- Search trips by origin and destination (http://localhost:3000/api/search?origin=XXX&destination=XXX&sort_by=fastest|cheapest)
-- CRUD operations for trips. Since the 3rd party API does not support a GET request for a trip, the POST request is done by creating a trip instead of saving one from the 3rd party API. (http://localhost:3000/api/trips)
-- Docker-ready setup with PostgreSQL database
+- RESTful API design following industry best practices
+- Search trips from an external API with sorting options
+- User authentication with JWT tokens (simplified for demonstration)
+- CRUD operations for user trips (get, save, delete)
+- PostgreSQL database with Prisma ORM
+- Docker setup for easy deployment
 
-## Requirements
+## Tech Stack
+
+- **TypeScript**: For type safety and better developer experience
+- **Express**: Fast, unopinionated web framework for Node.js
+- **Prisma**: Modern database toolkit for TypeScript
+- **PostgreSQL**: Relational database for data persistence
+- **Docker**: Containerization for consistent development and production environments
+- **Zod**: Schema validation for request parameters
+- **Pino**: Fast and low-overhead logger
+
+## Architecture
+
+The project follows a clean architecture approach with clear separation of concerns:
+
+### Layers
+
+1. **Controllers**: Handle HTTP requests and responses
+
+   - Thin layer that delegates business logic to services
+   - Handles HTTP status codes and response formatting
+
+2. **Services**: Contain business logic
+
+   - Encapsulate domain knowledge and business rules
+   - Coordinate between repositories and external services
+   - Handle errors and throw domain-specific exceptions
+
+3. **Repositories**: Data access layer
+
+   - Interact directly with the database through Prisma
+   - Abstract away database implementation details
+   - Provide domain-oriented methods for data operations
+
+4. **Middlewares**: Process requests before they reach controllers
+
+   - Authentication
+   - Request validation
+   - Logging and metrics
+   - Error handling
+
+5. **Routes**: Define API endpoints
+   - Connect endpoints to controllers
+   - Apply middleware to specific routes
+
+### Directory Structure
+
+```
+src/
+├── controllers/     # Request handlers
+├── dto/             # Data transfer objects for validation
+├── middlewares/     # Express middlewares
+├── modules/         # Shared modules (logger, env)
+├── repositories/    # Data access layer
+├── routes/          # API routes
+├── services/        # Business logic
+├── types/           # TypeScript type definitions
+└── index.ts         # Application entry point
+```
+
+## API Endpoints
+
+### Authentication
+
+All endpoints under `/api/trips` require authentication via Bearer token.
+
+### Public Endpoints
+
+- `GET /`: Health check endpoint
+- `GET /api/search`: Search for trips
+  - Query parameters:
+    - `origin`: 3-letter IATA code (required)
+    - `destination`: 3-letter IATA code (required)
+    - `sort_by`: Either 'fastest' or 'cheapest' (default: 'fastest')
+
+### Protected Endpoints
+
+- `GET /api/trips`: Get all saved trips for authenticated user
+- `GET /api/trips/:id`: Get a specific saved trip by ID
+- `POST /api/trips`: Save a trip
+  - Body: `{ "original_id": "string" }`
+- `DELETE /api/trips/:id`: Delete a saved trip by ID
+
+## Setup and Installation
+
+### Prerequisites
 
 - Docker and Docker Compose
-- Node.js 18+ (only for local development without Docker)
-
-## Quick Start
+- Node.js 16+ (for local development)
 
 ### Using Docker (Recommended)
 
 1. Clone the repository
-2. Create a `.env` file (you can copy from `.env.example`)
-3. Add your API key to the `.env` file
-4. Run with Docker Compose:
+2. Create a `.env` file based on `.env.example`
+3. Run with Docker Compose:
 
 ```bash
 docker compose up
@@ -30,11 +114,10 @@ This will:
 
 - Start a PostgreSQL database
 - Create the database schema using Prisma
-- Start the Node.js API server
+- Seed the database with test users
+- Start the API server
 
-The API will be available at `http://localhost:3000`
-
-### Manual Setup (Without Docker)
+### Local Development
 
 1. Install dependencies:
 
@@ -42,104 +125,50 @@ The API will be available at `http://localhost:3000`
 npm install
 ```
 
-2. Create a `.env` file (copy from `.env.example`)
-3. Update `DATABASE_URL` in `.env` to point to your local PostgreSQL instance
-4. Generate Prisma client:
+2. Create a `.env` file based on `.env.example`
+3. Generate Prisma client:
 
 ```bash
-npx prisma generate
+npm run prisma:generate
 ```
 
-5. Push the database schema:
+4. Push database schema:
 
 ```bash
 npx prisma db push
 ```
 
-6. Start the development server:
+5. Seed the database:
+
+```bash
+npm run prisma:seed
+```
+
+6. Start development server:
 
 ```bash
 npm run dev
 ```
 
-## API Endpoints
+## Testing the API
 
-### Health Check
+After starting the server, you can test the API with:
 
-```
-GET /
-```
-
-Returns server status
-
-### Search Trips
+1. The health check endpoint:
 
 ```
-GET /api/search?origin=XXX&destination=XXX&sort_by=fastest|cheapest
+GET http://localhost:3000/
 ```
 
-Parameters:
+2. Search for trips:
 
-- `origin`: IATA 3 letter code of the origin (required)
-- `destination`: IATA 3 letter code of the destination (required)
-- `sort_by`: Sorting strategy, either `fastest` or `cheapest` (defaults to `fastest`)
-
-## Configuration
-
-All configuration is done through environment variables:
-
-- `SERVER_PORT`: Port for the API server (default: 3000)
-- `NODE_ENV`: Environment (development, production, test)
-- `TRIPS_API_BASE_URL`: URL for the 3rd party trips API
-- `TRIPS_API_KEY`: API key for accessing the 3rd party trips API
-- `DB_USER`: PostgreSQL username
-- `DB_PASSWORD`: PostgreSQL password
-- `DB_NAME`: PostgreSQL database name
-- `DB_PORT`: PostgreSQL port
-- `DB_URL`: Full PostgreSQL connection string
-
-## Development
-
-### Available Scripts
-
-- `npm run dev`: Start development server with hot reload
-- `npm run build`: Build for production
-- `npm run start`: Run production build
-- `npm run lint`: Lint code
-- `npm run format`: Format code with Prettier
-- `npm run prisma:generate`: Generate Prisma client
-- `npm run migrate:dev`: Create a new migration
-- `npm run migrate:deploy`: Deploy migrations
-
-### Code Quality
-
-This project uses **ESLint** and **Prettier** to ensure consistent and high-quality code across the team. Run the following commands to check and format the code:
-
-- Lint the code:
-
-```bash
-npm run lint
+```
+GET http://localhost:3000/api/search?origin=NYC&destination=LAX
 ```
 
-- Format the code:
+3. To access protected endpoints, use one of the tokens printed during seeding:
 
-```bash
-npm run format
 ```
-
-## Architecture
-
-The project follows a clean architecture approach:
-
-- `controllers/`: Handle HTTP requests and responses
-- `services/`: Business logic
-- `middlewares/`: Express middleware functions
-- `routes/`: API endpoint definitions
-- `dto/`: Data Transfer Objects for validation
-- `types/`: TypeScript type definitions
-- `modules/`: Shared modules like logging and configuration
-- `prisma/`: Database schema and migrations
-
-## Error Handling
-
-The application implements centralized error handling with proper HTTP status codes and standardized error responses.
+GET http://localhost:3000/api/trips
+Authorization: Bearer test-token-xxxx
+```

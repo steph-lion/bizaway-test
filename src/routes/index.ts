@@ -1,2 +1,2 @@
-export { searchRouter } from './search.route';
-export { tripsRouter } from './trips.route';
+export { searchRouter } from './search.routes';
+export { tripsRouter } from './trips.routes';

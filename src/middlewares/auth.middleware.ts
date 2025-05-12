@@ -1,13 +1,14 @@
-import { NextFunction, Request, Response } from 'express';
-import { prisma } from '../services';
+import { NextFunction, Request, RequestHandler, Response } from 'express';
+import { UserRepository } from '../repositories';
 import { ServerError } from '../types/serverError';
 
 /**
  * Extended Request interface to include the authenticated user
  */
 export interface AuthenticatedRequest extends Request {
-  user?: JWTUserPayload;
+  user: JWTUserPayload;
 }
+
 export interface JWTUserPayload {
   id: number;
   name: string;
@@ -18,8 +19,8 @@ export interface JWTUserPayload {
  * Authentication middleware to validate JWT tokens
  * For this simplified version, we're just looking up the token in the database
  */
-export const authMiddleware = async (
-  req: AuthenticatedRequest,
+export const authMiddleware: RequestHandler = async (
+  req: Request,
   _res: Response,
   next: NextFunction
 ): Promise<void> => {
@@ -33,21 +34,15 @@ export const authMiddleware = async (
     // Extract the token
     const token = authHeader.split(' ')[1];
 
-    // Find the user with this token
-    const user = await prisma.user.findUnique({
-      select: {
-        id: true,
-        name: true,
-        email: true,
-      },
-      where: { token },
-    });
+    // Find the user with this token using the repository
+    const user = await UserRepository.findByToken(token);
+
     if (!user) {
       throw new ServerError('Unauthorized: Invalid token', 401);
     }
 
     // Attach the user to the request object
-    req.user = user;
+    (req as AuthenticatedRequest).user = user;
 
     // Continue with the request
     next();

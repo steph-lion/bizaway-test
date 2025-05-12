@@ -18,7 +18,6 @@ export const errorHandler = (
   // Log every error for debugging
   if (error instanceof Error) {
     logger.error(`Error: ${error.message}`);
-    logger.debug(error.stack || 'No stack trace available');
   } else {
     logger.error('Unknown error occurred');
   }

@@ -1,56 +1,69 @@
 import { PrismaClient } from '@prisma/client';
+import { randomUUID } from 'crypto';
 import { logger } from '../src/modules';
 
 const prisma = new PrismaClient();
 
 /**
- * Seed the database with 3 initial users with predefined tokens
+ * Create seed data for the application
  */
 async function main(): Promise<void> {
   try {
+    // Clear existing data
+    await prisma.trip.deleteMany();
     await prisma.user.deleteMany();
 
-    await prisma.user.create({
-      data: {
-        name: 'John Doe',
-        email: 'john@example.com',
-        password: 'hashed_password_1', // In a real app, this would be properly hashed
-        token:
-          'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwibmFtZSI6IkpvaG4gRG9lIiwiZW1haWwiOiJqb2huQGV4YW1wbGUuY29tIn0.hqWGSaFpvbrXkOWc6YFPk9LALxCwbGbqgW-GkBKuQ_s',
-      },
-    });
+    logger.debug('Creating test users...');
 
-    await prisma.user.create({
-      data: {
-        name: 'Jane Smith',
-        email: 'jane@example.com',
-        password: 'hashed_password_2', // In a real app, this would be properly hashed
-        token:
-          'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwibmFtZSI6IkphbmUgU21pdGgiLCJlbWFpbCI6ImphbmVAZXhhbXBsZS5jb20ifQ.V8iqT3GUq-NDWNhqQx8vKUMnYI9cf1hhIGODMlHcVSg',
-      },
-    });
+    // Create test users with predefined tokens for authentication
+    await Promise.all([
+      prisma.user.create({
+        data: {
+          name: 'Test User 1',
+          email: 'user1@example.com',
+          password: 'password123', // In a real app, this would be hashed
+          token: `test-token-${randomUUID()}`,
+        },
+      }),
+      prisma.user.create({
+        data: {
+          name: 'Test User 2',
+          email: 'user2@example.com',
+          password: 'password456',
+          token: `test-token-${randomUUID()}`,
+        },
+      }),
+      prisma.user.create({
+        data: {
+          name: 'Test User 3',
+          email: 'user3@example.com',
+          password: 'password789',
+          token: `test-token-${randomUUID()}`,
+        },
+      }),
+    ]);
 
-    await prisma.user.create({
-      data: {
-        name: 'Bob Johnson',
-        email: 'bob@example.com',
-        password: 'hashed_password_3', // In a real app, this would be properly hashed
-        token:
-          'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywibmFtZSI6IkJvYiBKb2huc29uIiwiZW1haWwiOiJib2JAZXhhbXBsZS5jb20ifQ.HlzF_y4tU1XNT5qX4YMjrdxTJGh-cvjTiKt1O_ILeXs',
-      },
-    });
+    logger.debug('Users created successfully:');
   } catch (error) {
-    // Type checking for error
     if (error instanceof Error) {
-      logger.error('Error seeding database:', error.message);
-      logger.error(error.stack);
+      logger.error('Seed failed:', error.message);
     } else {
-      logger.error('Unknown error seeding database');
+      logger.error('Seed failed with an unknown error');
     }
     process.exit(1);
-  } finally {
-    await prisma.$disconnect();
   }
 }
 
-main();
+main()
+  .then(async () => {
+    await prisma.$disconnect();
+  })
+  .catch(async (error) => {
+    if (error instanceof Error) {
+      logger.error('Seed script error:', error.message);
+    } else {
+      logger.error('Seed script failed with an unknown error');
+    }
+    await prisma.$disconnect();
+    process.exit(1);
+  });

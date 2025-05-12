@@ -18,6 +18,22 @@ export const validateQuery = (schema: AnyZodObject) => {
 };
 
 /**
+ * Creates a middleware to validate request URL parameters against a Zod schema
+ */
+export const validateParams = (schema: AnyZodObject) => {
+  return async (req: Request, _res: Response, next: NextFunction): Promise<void> => {
+    try {
+      // Parse and validate URL parameters
+      await schema.parseAsync(req.params);
+      next();
+    } catch (error) {
+      next(error);
+      return;
+    }
+  };
+};
+
+/**
  * Creates a middleware to validate request body against a Zod schema
  */
 export const validateBody = (schema: AnyZodObject) => {
