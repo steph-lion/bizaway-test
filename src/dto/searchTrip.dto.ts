@@ -1,19 +1,20 @@
 import { z } from 'zod';
+import { SUPPORTED_AIRPORTS } from '../constants/airports';
 
 /**
  * Schema for validating trip search query parameters
- *
- * NOTE: I could have added a check for the array given in the homework, but since the 3rd party API returns 200 for non-existent airports, I decided to leave it out.
  */
 export const SearchTripSchema = z.object({
   origin: z
-    .string()
-    .length(3)
-    .regex(/^[A-Z]{3}$/, 'Origin must be a valid 3-letter IATA code'),
+    .enum(SUPPORTED_AIRPORTS, {
+      errorMap: () => ({ message: 'Origin must be a valid supported IATA airport code' }),
+    })
+    .describe('IATA airport code for origin (3-letter code)'),
   destination: z
-    .string()
-    .length(3)
-    .regex(/^[A-Z]{3}$/, 'Destination must be a valid 3-letter IATA code'),
+    .enum(SUPPORTED_AIRPORTS, {
+      errorMap: () => ({ message: 'Destination must be a valid supported IATA airport code' }),
+    })
+    .describe('IATA airport code for destination (3-letter code)'),
   sort_by: z.enum(['fastest', 'cheapest']).optional().default('fastest'),
 });
 
