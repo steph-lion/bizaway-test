@@ -1,6 +1,8 @@
 import dotenv from 'dotenv';
 import express, { Request, Response } from 'express';
-import { expressIncomingRequest, rateLimiter } from './middlewares';
+import swaggerUi from 'swagger-ui-express';
+import { swaggerSpec } from './config/swagger.config';
+import { errorHandler, expressIncomingRequest, rateLimiter } from './middlewares';
 import { env, logger } from './modules';
 import { searchRouter, tripsRouter } from './routes';
 
@@ -39,9 +41,23 @@ app.use('/api/trips', tripsRouter);
 app.use('/api/search', searchRouter);
 
 /**
+ * Swagger documentation
+ */
+app.use(
+  '/api-docs',
+  swaggerUi.serve,
+  swaggerUi.setup(swaggerSpec, {
+    explorer: true,
+    customCss: '.swagger-ui .topbar { display: none }',
+    swaggerOptions: {
+      docExpansion: 'list',
+    },
+  })
+);
+
+/**
  * Global error handler - must be last middleware
  */
-import { errorHandler } from './middlewares';
 app.use(errorHandler);
 
 /**

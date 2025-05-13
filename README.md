@@ -9,6 +9,7 @@ A RESTful API for searching and saving trips using Express, TypeScript, and Pris
 - User authentication with JWT tokens (simplified for demonstration)
 - CRUD operations for user trips (get, save, delete)
 - Rate limiting (180 requests per 60 seconds window)
+- Interactive API documentation with Swagger/OpenAPI 3.0
 - PostgreSQL database with Prisma ORM
 - Docker setup for easy deployment
 
@@ -19,6 +20,8 @@ A RESTful API for searching and saving trips using Express, TypeScript, and Pris
 - **Prisma**: Modern database toolkit for TypeScript
 - **PostgreSQL**: Relational database for data persistence
 - **Docker**: Containerization for consistent development and production environments
+- **Swagger/OpenAPI**: Interactive API documentation
+- **express-rate-limit**: API rate limiting middleware
 - **Zod**: Schema validation for request parameters
 - **express-rate-limit**: API rate limiting middleware
 - **Pino**: Fast and low-overhead logger
@@ -72,28 +75,9 @@ src/
 └── index.ts         # Application entry point
 ```
 
-## API Endpoints
+## Authentication
 
-### Authentication
-
-All endpoints under `/api/trips` require authentication via Bearer token.
-
-### Public Endpoints
-
-- `GET /`: Health check endpoint
-- `GET /api/search`: Search for trips
-  - Query parameters:
-    - `origin`: 3-letter IATA code (required)
-    - `destination`: 3-letter IATA code (required)
-    - `sort_by`: Either 'fastest' or 'cheapest' (default: 'fastest')
-
-### Protected Endpoints
-
-- `GET /api/trips`: Get all saved trips for authenticated user
-- `GET /api/trips/:id`: Get a specific saved trip by ID
-- `POST /api/trips`: Save a trip
-  - Body: `{ "original_id": "string" }`
-- `DELETE /api/trips/:id`: Delete a saved trip by ID
+All endpoints under `/api/trips` require authentication via Bearer token (mocked randomly).
 
 ## Setup and Installation
 
@@ -119,95 +103,32 @@ This will:
 - Seed the database with test users
 - Start the API server
 
-### Local Development
+## API Documentation
 
-1. Install dependencies:
+The API is documented using Swagger/OpenAPI 3.0, providing interactive and easy-to-use documentation.
 
-```bash
-npm install
-```
+### Accessing the Documentation
 
-2. Create a `.env` file based on `.env.example`
-3. Generate Prisma client:
-
-```bash
-npm run prisma:generate
-```
-
-4. Push database schema:
-
-```bash
-npx prisma db push
-```
-
-5. Seed the database:
-
-```bash
-npm run prisma:seed
-```
-
-6. Start development server:
-
-```bash
-npm run dev
-```
-
-## Security Features
-
-### Rate Limiting
-
-The API implements rate limiting to protect against abuse and ensure fair usage of resources. Each IP address is limited to:
-
-- **180 requests** per **60 second** window (default)
-- After exceeding this limit, requests will receive a `429 Too Many Requests` response
-- Headers containing rate limit information are included in all responses:
-  - `RateLimit-Limit`: Maximum number of requests allowed in the window
-  - `RateLimit-Remaining`: Number of requests remaining in the current window
-  - `RateLimit-Reset`: Time in seconds until the current window resets
-
-#### Configuration
-
-Rate limiting can be configured through environment variables:
+After starting the server, you can access the API documentation at:
 
 ```
-# Rate Limiter configuration
-RATE_LIMIT_WINDOW_MS=60000   # Time window in milliseconds (default: 60000)
-RATE_LIMIT_MAX=180           # Maximum requests per window (default: 180)
-RATE_LIMIT_STANDARD_HEADERS=true  # Whether to include standard rate limit headers
+http://localhost:3000/api-docs
 ```
 
-#### Benefits and Considerations
+Modify the port if needed according to your `.env` configuration (the default port is 3000).
 
-This protection helps prevent:
+The Swagger documentation offers:
 
-- Brute force attacks on authentication endpoints
-- Denial of service (DoS) attacks
-- API abuse by automated scripts
-- Resource exhaustion
+- Detailed description of all API endpoints
+- Required and optional parameters for each endpoint
+- Request and response data schemas
+- Interactive interface to test the APIs directly from the browser
+- Bearer token authentication implementation
 
-## Authentication
+### Testing the API via Swagger
 
-All endpoints under `/api/trips` require authentication via Bearer token.
-
-## Testing the API
-
-After starting the server, you can test the API with:
-
-1. The health check endpoint:
-
-```
-GET http://localhost:3000/
-```
-
-2. Search for trips:
-
-```
-GET http://localhost:3000/api/search?origin=NYC&destination=LAX
-```
-
-3. To access protected endpoints, use one of the tokens generated during seeding:
-
-```
-GET http://localhost:3000/api/trips
-Authorization: Bearer test-token-xxxx
-```
+1. Navigate to the documentation page (`/api-docs`)
+2. For protected endpoints, click the "Authorize" button and enter the Bearer token
+3. Select the endpoint you want to test
+4. Enter the required parameters
+5. Click "Execute" to send the request
